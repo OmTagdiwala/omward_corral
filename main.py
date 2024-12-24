@@ -14,6 +14,7 @@ os.chdir(path)
     else:
         print("new user detected")'''
 
+# when called this function will work (tested)
 def newuser(name, passward):
     with open(name + ".txt", "a") as fil:
         fil.write(passward)
@@ -21,6 +22,4 @@ def newuser(name, passward):
 
 # main login window loop
 while True:
-    newuser("quacky", "amongus")
-
     loginwin.mainloop()
