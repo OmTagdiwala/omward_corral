@@ -1,9 +1,15 @@
 # initalizations
 import tkinter
 import os
+import smtplib
 from cryptography.fernet import Fernet
 import random
 loginwin = tkinter.Tk()
+
+smtp_server = "smtp.gmail.com"
+smtp_port = 587
+smtp_username = "bunny.rnd@gmail.com"
+smtp_password = "aebx xjjx rnpm ynxl"
 
 path = __file__
 path = path.replace("main.py", "userpasswords")
@@ -39,7 +45,13 @@ def infochecker(name, password):
     
 def newuser(name, passward, email):
     with open(name + ".txt", "wb") as fil:
-        fil.write((encryptor(passward + "\n" + email + "\n")))
+        fil.writelines([encryptor(passward), encryptor(email)])
+
+def getinfo(name, line): # line is the line number of the info you want (passwords are on the first line, emails on the seconds)
+    with open(name + ".txt", "rb") as fil:
+        q = fil.read()
+        print(type(q))
+    return decryptor(q).split("\n")[(line-1)]
 
 def passvalidity(password, name = "password"):
     if len(password) < 8:
@@ -74,6 +86,24 @@ def deleteuser(name):
     # add a message box to confirm deletion
     # send an email to user to confirm deletion
 
+'''def changepassword(name, password):
+    with open(name + ".txt", "wb") as fil:
+        fil.write(encryptor(password))ure
+        # a later feature'''
+
+def verifyemail(email):
+    if "@" in email and "." in email:
+        return True
+    else:
+        return False
+
+def emailuser(email, purpose, body):    
+    message = f'Subject: {purpose}\n\n{body}'
+    with smtplib.SMTP(smtp_server, smtp_port) as smtp:
+        smtp.starttls()
+        smtp.login(smtp_username, smtp_password)
+        smtp.sendmail("bunny.rnd@gmail.com", email, message)
+
 # encryptor and decryptor functions
 
 def encryptor(password):
@@ -87,12 +117,12 @@ def decryptor(password):
     return dcpass
 
 # testing (no input yet so manually)
-'''if not checkuserexist("mward"):
-    newuser("mward", "quacquack")
+if not checkuserexist("mward"):
+    newuser("mward", "quacquack", "all4music4us@gmail.com")
     print("new user detected")
 else:
     print("User already exists")
-'''
+    getinfo("mward", 1)
 
 # login window
 while True:
