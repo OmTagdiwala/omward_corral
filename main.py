@@ -7,6 +7,53 @@ import smtplib
 import hashlib
 from cryptography.fernet import Fernet
 import random
+
+### general functions
+
+def emailuser(email, purpose, body):    
+    message = f'Subject: {purpose}\n\n{body}'
+    with smtplib.SMTP(smtp_server, smtp_port) as smtp:
+        smtp.starttls()
+        smtp.login(smtp_username, smtp_password)
+        smtp.sendmail("bunny.rnd@gmail.com", email, message)
+
+def infowriter(desc, passname="", password="", pemail="", note=""):
+    with open(hasher(xerror) + ".txt", "ab") as fil:
+        fil.write(encryptor(passname) + b"," + encryptor(password) + b"," + encryptor(pemail) + b"," + encryptor(note) + b"," + encryptor(desc) + b"\n")
+
+def passsuggest():
+    x = True
+    while x == True:
+        n = ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_+[];:.<>?", k=(random.randint(8, 12))))
+        if passvalidity(n):
+            x = False
+    return n
+
+def infofinder(name, passname):
+    with open(hasher(name) + ".txt", "rb") as fil:
+        q = fil.readlines()
+        for i in q[1:]:
+            l = i.split(b",")
+            if l[0] == encryptor(passname):
+                w = l[1]
+                break
+            else:
+                continue
+        return decryptor(w)
+
+# encryptor and decryptor functions
+def encryptor(password):
+    epassword = password.encode('utf-8')
+    ecpass = genkey().encrypt(epassword)
+    return ecpass
+
+def decryptor(password):
+    dpassword = genkey().decrypt(password)
+    dcpass = dpassword.decode('utf-8')
+    return dcpass
+
+### login functions
+
 loginwin = tkinter.Tk()
 
 smtp_server = "smtp.gmail.com"
@@ -15,7 +62,7 @@ smtp_username = "bunny.rnd@gmail.com"
 smtp_password = "aebx xjjx rnpm ynxl"
 eye = (PhotoImage(file="eye.png")).subsample(15, 15)
 closeye = (PhotoImage(file="closeye.png")).subsample(15, 15)
-
+success = False
 path = __file__
 path = path.replace("main.py", "userpasswords")
 # change the directory to the userpasswords folder
@@ -71,7 +118,6 @@ def createuser(name, passward, email):
     loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.get()))
     loginwin.geometry("400x250")
 
-
 def passvalidity(password, confpassword=",", name = "password"):
     if password != confpassword and confpassword != ",":
         return False, "Passwords do not match"
@@ -95,8 +141,7 @@ def passvalidity(password, confpassword=",", name = "password"):
         return False, "Password contains a comma (invalid for program purposes)"
     else:
         return True, "Password is valid"
-def passwordvalresp():
-    pass
+
 '''def forgotpassword():
     pass
     # a later feature'''
@@ -119,12 +164,6 @@ def verifyemail(email):
     else:
         return False
 
-def emailuser(email, purpose, body):    
-    message = f'Subject: {purpose}\n\n{body}'
-    with smtplib.SMTP(smtp_server, smtp_port) as smtp:
-        smtp.starttls()
-        smtp.login(smtp_username, smtp_password)
-        smtp.sendmail("bunny.rnd@gmail.com", email, message)
 
 # logging in
 
@@ -135,7 +174,9 @@ def infochecker(name, password):
         if decryptor((q.split(b","))[1]) == password: # if file is found, it'll check for username
             global xerror
             xerror = name
-            right()
+            global success
+            success = True
+            loginwin.destroy()
         else:
             wrong()
     except:
@@ -143,47 +184,10 @@ def infochecker(name, password):
 
 # basic functions
 
-def infowriter(desc, passname="", password="", pemail="", note=""):
-    with open(hasher(xerror) + ".txt", "ab") as fil:
-        fil.write(encryptor(passname) + b"," + encryptor(password) + b"," + encryptor(pemail) + b"," + encryptor(note) + b"," + encryptor(desc) + b"\n")
-
-def passsuggest():
-    x = True
-    while x == True:
-        n = ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_+[];:.<>?", k=(random.randint(8, 12))))
-        if passvalidity(n):
-            x = False
-    return n
-
-def infofinder(name, passname):
-    with open(hasher(name) + ".txt", "rb") as fil:
-        q = fil.readlines()
-        for i in q[1:]:
-            l = i.split(b",")
-            if l[0] == encryptor(passname):
-                w = l[1]
-                break
-            else:
-                continue
-        return decryptor(w)
-
-# encryptor and decryptor functions
-def encryptor(password):
-    epassword = password.encode('utf-8')
-    ecpass = genkey().encrypt(epassword)
-    return ecpass
-
-def decryptor(password):
-    dpassword = genkey().decrypt(password)
-    dcpass = dpassword.decode('utf-8')
-    return dcpass
-
 def hasher(name):
     return hashlib.sha256(name.encode('utf-8')).hexdigest()
 
 # correct or incorrect password functions
-def right():
-    pass
 def wrong():
     messagebox.showerror("Error", "Incorrect Username or Password")
 def showpassword(event):
@@ -263,7 +267,7 @@ loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.g
 # login button
 loginbutton = tkinter.Button(loginwin, text="Login", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [infochecker(userentry.get(), passentry.get())])
 loginbutton.pack(side="top", anchor="w")
-newuserbut = tkinter.Button(loginwin, text="New User", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
+newuserbut = tkinter.Button(loginwin, text="New User?", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
 newuserbut.pack(side="top", anchor="w")
 # forgot password button
 # forgotbutton = tkinter.Button(loginframe, text="Forgot Password", font=("Segoe UI", 12), fg="black", bg="white", command=forgotpassword)
@@ -274,6 +278,14 @@ newuserbut.pack(side="top", anchor="w")
 loginwin.iconbitmap("omward_corral.ico")
 loginwin.mainloop()
 
-def mainwin():
-    pass
+### main functions
+
 # main window
+if success == True:
+    mainwin = tkinter.Tk()
+    mainwin.title("Omward Corral")
+    mainwin.geometry("800x600")
+    mainwin.resizable(True, True)
+    mainwin.configure(bg="black")
+    mainwin.iconbitmap("omward_corral.ico")
+    mainwin.mainloop()
