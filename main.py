@@ -35,13 +35,46 @@ def genkey():
 
 # changing user info functions
 
-def newuser(name, passward, email):
+def newuser(name, passward, confpass, email):
+    if os.path.exists(hasher(name) + ".txt"):
+        messagebox.showerror("Error", "User already exists\nTry a different username")
+    elif passvalidity(passward, confpass, name)[0] == False:
+        messagebox.showerror("Error", passvalidity(passward, confpass, name)[1])
+    elif verifyemail(email) == False:
+        messagebox.showerror("Error", "Email is invalid")
+    elif passvalidity(passward, confpass, name)[0] == True and verifyemail(email) == True and not os.path.exists(hasher(name) + ".txt"):
+        confirmuser(name, passward, email)
+    else:
+        messagebox.showerror("Error", "Unknown error, try something else")
+
+def confirmuser(name, passward, email):
+    confcode = ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", k=5))
+    emailuser(email, "Omward Corral Confirmation Code", f"Your confirmation code is {confcode}")
+    messagebox.showinfo("Confirm Account", "Confirmation code has been sent to your email (check spam too)")
+    checkcode(name, passward, email, confcode)
+
+def checkcode(name, password, email, ogcode):
+    confirmlab = tkinter.Label(loginwin, text="Enter Your Confirmation Code", font=("Segoe UI", 12), fg="white", bg="black")
+    confirmlab.pack(side="top", anchor="w")
+    confirmentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
+    confirmentry.pack(side="top", anchor="w")
+    confirmentry.bind("<Return>", lambda event: mainwin())
+    confirmbtn = tkinter.Button(loginwin, text="Confirm", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: createuser(name, password, email) if ogcode == confirmentry.get() else messagebox.showerror("Error", "Confirmation code is incorrect"))    
+    confirmbtn.pack(side="top", anchor="w")
+
+def createuser(name, passward, email):
     global xerror
     xerror = name
+    messagebox.showinfo("Success!", "User has been successfully created\nNow try logging in")
     with open(hasher(xerror) + ".txt", "wb") as fil:
         fil.write((hasher(name)).encode() + b"," + encryptor(passward) + b"," + encryptor(email) + b"\n")
+    loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.get()))
+    loginwin.geometry("400x250")
 
-def passvalidity(password, name = "password"):
+
+def passvalidity(password, confpassword=",", name = "password"):
+    if password != confpassword and confpassword != ",":
+        return False, "Passwords do not match"
     if len(password) < 8:
         return False, "Length of password is less than 8 characters"
     if password == name:
@@ -62,7 +95,8 @@ def passvalidity(password, name = "password"):
         return False, "Password contains a comma (invalid for program purposes)"
     else:
         return True, "Password is valid"
-
+def passwordvalresp():
+    pass
 '''def forgotpassword():
     pass
     # a later feature'''
@@ -159,6 +193,39 @@ def hidepassword(event):
     passentry.config(show="*")
     showbutton.config(image=closeye)
 
+# new user info maker
+def newuserinfo():
+    newuserbut.config(state="disabled")
+    loginwin.bind("<Return>", lambda event: [newuser(userentry.get(), passentry.get(), confirmpassentry.get(), emailentry.get())])
+    loginwin.geometry("400x600")
+    title = tkinter.Label(loginwin, text="New User?", font=("Segoe UI Black", 17), justify="center", fg="white", bg="black")
+    title.pack(side="top", anchor="center")
+    userlabel = tkinter.Label(loginwin, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
+    userlabel.pack(side="top", anchor="w")
+    userentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
+    userentry.pack(side="top", anchor="w")
+    # password
+    passlabel = tkinter.Label(loginwin, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
+    passlabel.pack(side="top", anchor="w")
+    # password entry should be in dots
+    # allow password to be shown while a button is pressed
+    passentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white", show="*")
+    passentry.pack(side="top", anchor="w")
+    # confirm password
+    confirmpasslabel = tkinter.Label(loginwin, text="Confirm Password", font=("Segoe UI", 12), fg="white", bg="black")
+    confirmpasslabel.pack(side="top", anchor="w")
+    confirmpassentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white", show="*")
+    confirmpassentry.pack(side="top", anchor="w")
+
+    # email
+    emaillabel = tkinter.Label(loginwin, text="Email", font=("Segoe UI", 12), fg="white", bg="black")
+    emaillabel.pack(side="top", anchor="w")
+    emailentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
+    emailentry.pack(side="top", anchor="w")
+    # newuser button
+    newbutton = tkinter.Button(loginwin, text="Create User", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [newuser(userentry.get(), passentry.get(), confirmpassentry.get(), emailentry.get())])
+    newbutton.pack(side="top", anchor="w")
+
 # testing (no input yet so manually)
 '''if not infochecker("mward", "quacquack"):
     newuser("mward", "quacquack", "all4music4us@gmail.com")
@@ -170,7 +237,7 @@ else:
 # login window
 
 loginwin.title("Login Window")
-loginwin.geometry("400x400")
+loginwin.geometry("400x250")
 loginwin.resizable(True, False)
 loginwin.configure(bg="black")
 title = tkinter.Label(loginwin, text="Welcome to Omward Corral!", font=("Segoe UI Black", 17), justify="center", fg="white", bg="black")
@@ -196,8 +263,8 @@ loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.g
 # login button
 loginbutton = tkinter.Button(loginwin, text="Login", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [infochecker(userentry.get(), passentry.get())])
 loginbutton.pack(side="top", anchor="w")
-
-
+newuserbut = tkinter.Button(loginwin, text="New User", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
+newuserbut.pack(side="top", anchor="w")
 # forgot password button
 # forgotbutton = tkinter.Button(loginframe, text="Forgot Password", font=("Segoe UI", 12), fg="black", bg="white", command=forgotpassword)
 # forgotbutton.pack(side="top", anchor="w")
@@ -206,3 +273,7 @@ loginbutton.pack(side="top", anchor="w")
 # bg = tkinter.PhotoImage(file="bg.png")
 loginwin.iconbitmap("omward_corral.ico")
 loginwin.mainloop()
+
+def mainwin():
+    pass
+# main window
