@@ -95,18 +95,22 @@ def newuser(name, passward, confpass, email):
         messagebox.showerror("Error", "Unknown error, try something else")
 
 def confirmuser(name, passward, email):
+    global confcode
     confcode = ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890", k=5))
     emailuser(email, "Omward Corral Confirmation Code", f"Your confirmation code is {confcode}")
     messagebox.showinfo("Confirm Account", "Confirmation code has been sent to your email (check spam too)")
-    checkcode(name, passward, email, confcode)
+    global newbutton
+    newbutton.config(text="Resend Code", command=lambda: [confirmuser(name, passward, email)]) 
+    checkcode(name, passward, email)
 
-def checkcode(name, password, email, ogcode):
+def checkcode(name, password, email):
     confirmlab = tkinter.Label(loginwin, text="Enter Your Confirmation Code", font=("Segoe UI", 12), fg="white", bg="black")
     confirmlab.pack(side="top", anchor="w")
     confirmentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
     confirmentry.pack(side="top", anchor="w")
-    confirmentry.bind("<Return>", lambda event: mainwin())
-    confirmbtn = tkinter.Button(loginwin, text="Confirm", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: createuser(name, password, email) if ogcode == confirmentry.get() else messagebox.showerror("Error", "Confirmation code is incorrect"))    
+    print(confcode)
+    loginwin.bind("<Return>", lambda event: createuser(name, password, email) if confcode == confirmentry.get() else messagebox.showerror("Error", "Confirmation code is incorrect"))
+    confirmbtn = tkinter.Button(loginwin, text="Confirm", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: createuser(name, password, email) if confcode == confirmentry.get() else messagebox.showerror("Error", "Confirmation code is incorrect"))    
     confirmbtn.pack(side="top", anchor="w")
 
 def createuser(name, passward, email):
@@ -117,6 +121,7 @@ def createuser(name, passward, email):
         fil.write((hasher(name)).encode() + b"," + encryptor(passward) + b"," + encryptor(email) + b"\n")
     loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.get()))
     loginwin.geometry("400x250")
+    print(name, passward, email)
 
 def passvalidity(password, confpassword=",", name = "password"):
     if password != confpassword and confpassword != ",":
@@ -227,6 +232,7 @@ def newuserinfo():
     emailentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
     emailentry.pack(side="top", anchor="w")
     # newuser button
+    global newbutton
     newbutton = tkinter.Button(loginwin, text="Create User", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [newuser(userentry.get(), passentry.get(), confirmpassentry.get(), emailentry.get())])
     newbutton.pack(side="top", anchor="w")
 
@@ -281,6 +287,47 @@ loginwin.mainloop()
 ### main functions
 
 # main window
+def passwin(desc, passname, password, pemail, note):
+    passwin = tkinter.Tk()
+    passwin.title(desc)
+    passwin.geometry("300x610")
+    passwin.resizable(True, True)
+    passwin.configure(bg="black")
+    # copiolet, add entries for the description, username, password, email, and notes 
+    desc_label = tkinter.Label(passwin, text="Description: ", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white")
+    desc_label.pack()
+    desc_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
+    desc_entry.insert(0, desc)
+    desc_entry.pack()
+    passname_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Username: ", bg="black", fg="white")
+    passname_label.pack()
+    passname_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
+    passname_entry.insert(0, passname)
+    passname_entry.pack()
+    password_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Password: ", bg="black", fg="white")
+    password_label.pack()
+    password_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
+    password_entry.insert(0, password)
+    password_entry.pack()
+    pemail_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Email: ", bg="black", fg="white")
+    pemail_label.pack()
+    pemail_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
+    pemail_entry.insert(0, pemail)
+    pemail_entry.pack()
+    note_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Notes: ", bg="black", fg="white")
+    note_label.pack()
+    note_entry = tkinter.Text(passwin, font=('Century Gothic', 12), height=15, width=30)
+    note_entry.insert(tkinter.END,note)
+    note_entry.pack(pady=10)
+    # add a save button
+    passwin.bind("<Control-s>", lambda event: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get(tkinter.END))) # infowriter function here
+    save_button = tkinter.Button(passwin, text="Save", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=lambda: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get(tkinter.END))) # info writer function here
+    save_button.pack()
+    # , lambda event: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get())
+    passwin.iconbitmap("omward_corral.ico")
+    passwin.mainloop()
+
+
 if success == True:
     mainwin = tkinter.Tk()
     mainwin.title("Omward Corral")
@@ -288,4 +335,29 @@ if success == True:
     mainwin.resizable(True, True)
     mainwin.configure(bg="black")
     mainwin.iconbitmap("omward_corral.ico")
+    nepass = tkinter.Button(mainwin, text="New", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin("", "", "", "", "")])
+    nepass.pack()
+    '''# main menu
+    mainmenu = tkinter.Menu(mainwin)
+    mainwin.config(menu=mainmenu)
+    # file menu
+    filemenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="File", menu=filemenu)
+    filemenu.add_command(label="New", command=lambda: [infowriter("New")])
+    filemenu.add_command(label="Open", command=lambda: [infowriter("Open")])
+    filemenu.add_command(label="Save", command=lambda: [infowriter("Save")])
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=mainwin.quit)
+    # edit menu
+    editmenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="Edit", menu=editmenu)
+    editmenu.add_command(label="Cut")
+    editmenu.add_command(label="Copy")
+    editmenu.add_command(label="Paste")
+    # help menu
+    helpmenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="Help", menu=helpmenu)
+    helpmenu.add_command(label="About")'''
+    # main window
+
     mainwin.mainloop()
