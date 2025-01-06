@@ -1130,3 +1130,6 @@ myvenv/Lib/site-packages/rust/cryptography-key-parsing/Cargo.toml
 myvenv/Lib/site-packages/rust/cryptography-openssl/Cargo.toml
 myvenv/Lib/site-packages/rust/cryptography-x509/Cargo.toml
 myvenv/Lib/site-packages/rust/cryptography-x509-verification/Cargo.toml
+fonts.py
+userpasswords/xxx.txt
+userpasswords/604aa8dc382c6be50a7baf1ee8cbff2077688e12f2fedd912eedda17329c0253.txt
