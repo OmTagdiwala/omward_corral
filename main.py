@@ -10,6 +10,22 @@ import random
 
 ### general functions
 
+# key generator function
+def genkey():
+    if not os.path.exists("xxx.txt"):
+        key = Fernet.generate_key()
+        cheeser = ((os.urandom(11)).hex()).encode('utf-8')
+        with open("xxx.txt", "wb") as xxx_file:
+            xxx_file.write(key + b"\n" + cheeser)
+    else:
+        with open("xxx.txt", "rb") as xxx_file:
+            c = xxx_file.read()
+            key = c.split(b"\n")[0]
+            cheeser = c.split(b"\n")[1]
+
+    cs = Fernet(key)
+    return cs, cheeser
+
 def emailuser(email, purpose, body):    
     message = f'Subject: {purpose}\n\n{body}'
     with smtplib.SMTP(smtp_server, smtp_port) as smtp:
@@ -29,8 +45,8 @@ def passsuggest():
             x = False
     return n
 
-def infofinder(name, passname):
-    with open(hasher(name) + ".txt", "rb") as fil:
+def infofinder(password, passname):
+    with open(hasher(password) + ".txt", "rb") as fil:
         q = fil.readlines()
         for i in q[1:]:
             l = i.split(b",")
@@ -44,11 +60,11 @@ def infofinder(name, passname):
 # encryptor and decryptor functions
 def encryptor(password):
     epassword = password.encode('utf-8')
-    ecpass = genkey().encrypt(epassword)
+    ecpass = genkey()[0].encrypt(epassword)
     return ecpass
 
 def decryptor(password):
-    dpassword = genkey().decrypt(password)
+    dpassword = genkey()[0].decrypt(password)
     dcpass = dpassword.decode('utf-8')
     return dcpass
 
@@ -67,18 +83,6 @@ path = __file__
 path = path.replace("main.py", "userpasswords")
 # change the directory to the userpasswords folder
 os.chdir(path)
-
-# key generator function
-def genkey():
-    if not os.path.exists("xxx.txt"):
-        key = Fernet.generate_key()
-        with open("xxx.txt", "wb") as key_file:
-            key_file.write(key)
-    else:
-        with open("xxx.txt", "rb") as key_file:
-            key = key_file.read()
-    cs = Fernet(key)
-    return cs
 
 # changing user info functions
 
@@ -190,7 +194,9 @@ def infochecker(name, password):
 # basic functions
 
 def hasher(name):
-    return hashlib.sha256(name.encode('utf-8')).hexdigest()
+    cracker = "uft-192.168.3.123"
+    xname = name + cracker + (genkey()[1]).hex()
+    return hashlib.sha256(xname.encode('utf-8')).hexdigest()
 
 # correct or incorrect password functions
 def wrong():
