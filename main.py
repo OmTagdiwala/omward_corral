@@ -34,8 +34,26 @@ def emailuser(email, purpose, body):
         smtp.sendmail("bunny.rnd@gmail.com", email, message)
 
 def infowriter(desc, passname="", password="", pemail="", note=""):
-    with open(hasher(xerror) + ".txt", "ab") as fil:
-        fil.write(encryptor(passname) + b"," + encryptor(password) + b"," + encryptor(pemail) + b"," + encryptor(note) + b"," + encryptor(desc) + b"\n")
+    file_path = hasher(xerror) + ".txt"
+    updated = False
+    with open(file_path, "rb") as fil:
+        c = fil.readlines()
+        for i in range(1, len(c)):
+            y = c[i].split(b",")
+            for q, val in enumerate(y):
+                y[q] = decryptor(val)
+            if y[4] == desc:
+                c[i] = encryptor(passname) + b"," + encryptor(password) + b"," + encryptor(pemail) + b"," + encryptor(note) + b"," + encryptor(desc) + b"\n"
+                updated = True
+                break
+
+    if updated:
+        with open(file_path, "wb") as fil:
+            fil.writelines(c)
+    else:
+        with open(file_path, "ab") as fil:
+            fil.write(encryptor(passname) + b"," + encryptor(password) + b"," + encryptor(pemail) + b"," + encryptor(note) + b"," + encryptor(desc) + b"\n")
+    refreshdata()
 
 def passsuggest():
     x = True
@@ -310,11 +328,15 @@ def passwin(desc, passname, password, pemail, note):
     passname_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
     passname_entry.insert(0, passname)
     passname_entry.pack()
-    password_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Password: ", bg="black", fg="white")
+    passwfram = tkinter.Frame(passwin, bg="black")
+    passwfram.pack()
+    password_label = tkinter.Label(passwfram, font=('Bahnschrift SemiBold SemiConden', 12), text="Password: ", bg="black", fg="white")
     password_label.pack()
-    password_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
+    password_entry = tkinter.Entry(passwfram, font=('Century Gothic', 12), width=17)
     password_entry.insert(0, password)
-    password_entry.pack()
+    password_entry.pack(side="left")
+    passgen_button = tkinter.Button(passwfram, text="G", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=lambda: [password_entry.delete(0, tkinter.END),password_entry.insert(0, passsuggest())])
+    passgen_button.pack(side="right", padx=2)
     pemail_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Email: ", bg="black", fg="white")
     pemail_label.pack()
     pemail_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
@@ -323,16 +345,97 @@ def passwin(desc, passname, password, pemail, note):
     note_label = tkinter.Label(passwin, font=('Bahnschrift SemiBold SemiConden', 12), text="Notes: ", bg="black", fg="white")
     note_label.pack()
     note_entry = tkinter.Text(passwin, font=('Century Gothic', 12), height=15, width=30)
-    note_entry.insert(tkinter.END,note)
+    note_entry.insert(tkinter.END, note)
     note_entry.pack(pady=10)
     # add a save button
-    passwin.bind("<Control-s>", lambda event: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get(tkinter.END))) # infowriter function here
-    save_button = tkinter.Button(passwin, text="Save", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=lambda: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get(tkinter.END))) # info writer function here
-    save_button.pack()
-    # , lambda event: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get())
+    passwin.bind("<Control-s>", lambda event: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get("1.0", tkinter.END))) # infowriter function here
+    savfram = tkinter.Frame(passwin, bg="black")
+    savfram.pack()
+    save_button = tkinter.Button(savfram, text="Save", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=lambda: infowriter(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get("1.0", tkinter.END))) # info writer function here
+    save_button.pack(side="left", padx=4)
+    cancel_button = tkinter.Button(savfram, text="Cancel", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=passwin.destroy)
+    cancel_button.pack(side="right", padx=4)
     passwin.iconbitmap("omward_corral.ico")
     passwin.mainloop()
 
+def orgpass(desc, passname, password, pemail, note):
+    '''global bigboyfram'''
+    fram = tkinter.Frame(mainwin, bg="black", highlightcolor="blue", highlightbackground="purple", highlightthickness=1)
+    fram.pack()
+    note = note.replace("\n", "-")
+    args = {'desc': desc, 'passname': passname, 'password': password, 'pemail': pemail, 'note': note}
+    for key, value in args.items():
+        if len(value) > 15:
+            args[key] = value[:15] + "..."
+
+    # Use the modified arguments
+    desc = args['desc']
+    passname = args['passname']
+    password = args['password']
+    pemail = args['pemail']
+    note = args['note']
+
+    descbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=desc, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    descbt.pack(side="left", padx=1, pady=2)
+    passnbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passname, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    passnbt.pack(side="left", padx=1, pady=2)
+    passwbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=password, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    passwbt.pack(side="left", padx=1, pady=2)
+    pemailbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=pemail, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    pemailbt.pack(side="left", padx=1, pady=2)
+    notebt = tkinter.Button(fram, width=15, height=1, relief="flat", text=note, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    notebt.pack(side="left", padx=1, pady=2)
+
+def refreshdata():
+    for widget in mainwin.winfo_children():
+        widget.destroy()
+    uppmenu()
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        for i in fil.readlines()[1:]:
+            l = i.split(b",")
+            orgpass(decryptor(l[4]), decryptor(l[0]), decryptor(l[1]), decryptor(l[2]), decryptor(l[3]))
+
+def logout():
+    global success
+    success = False
+    mainwin.destroy()
+    loginwin()
+
+def uppmenu():
+    mainmenu = tkinter.Menu(mainwin)
+    mainwin.config(menu=mainmenu)
+    welcome = tkinter.Label(mainwin, text=f"Welcome {xerror}", font=("Segoe UI", 16), fg="cyan", bg="black")
+    welcome.pack()
+    # file menu
+    filemenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="File", menu=filemenu)
+    filemenu.add_command(label="New", command=lambda: [passwin("", "", "", "", "")])
+    filemenu.add_command(label="Refresh", command=refreshdata)
+    filemenu.add_separator()
+    filemenu.add_command(label="Exit", command=mainwin.quit)
+    # edit menu
+    editmenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="Settings", menu=editmenu)
+    editmenu.add_command(label="Log Out", command=logout)
+#    editmenu.add_command(label="Change Password")
+#    editmenu.add_command(label="Delete Account")
+    # accessability menu
+    accessmenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="Accessibility", menu=accessmenu)
+#    accessmenu.add_command(label="Change Theme")
+#    accessmenu.add_command(label="Change Font")
+#    accessmenu.add_command(label="Toggle Password Visibility")
+    # help menu
+    helpmenu = tkinter.Menu(mainmenu, tearoff=0)
+    mainmenu.add_cascade(label="About", menu=helpmenu)
+    helpmenu.add_command(label="Help", command=lambda: messagebox.showinfo("Help", "Omward Corral\nVersion 1.0\nEmail bunny.rnd@gmail.com for help and inquires\nRefer to Readme on Github\nhttps://github.com/OmTagdiwala/omward_corral"))
+    helpmenu.add_command(label="Creator Information", command=lambda: messagebox.showinfo("Meet The Creator", "Omward Corral\nDeveloped by OmTagdiwala\nbunny.rnd@gmail.com\nhttps://github.com/OmTagdiwala"))
+    helpmenu.add_command(label="Report a Bug", command=lambda: messagebox.showinfo("Report a Bug", "Email bunny.rnd@gmail.com"))
+'''    global bigboyfram
+    bigboyfram = tkinter.Frame(mainwin, bg="black")
+    scrollbar = tkinter.Scrollbar(bigboyfram, orient="vertical")
+    scrollbar.pack(side="right", fill="y")
+    bigboyfram.pack()'''
 
 if success == True:
     mainwin = tkinter.Tk()
@@ -341,29 +444,10 @@ if success == True:
     mainwin.resizable(True, True)
     mainwin.configure(bg="black")
     mainwin.iconbitmap("omward_corral.ico")
-    nepass = tkinter.Button(mainwin, text="New", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin("", "", "", "", "")])
-    nepass.pack()
-    '''# main menu
-    mainmenu = tkinter.Menu(mainwin)
-    mainwin.config(menu=mainmenu)
-    # file menu
-    filemenu = tkinter.Menu(mainmenu, tearoff=0)
-    mainmenu.add_cascade(label="File", menu=filemenu)
-    filemenu.add_command(label="New", command=lambda: [infowriter("New")])
-    filemenu.add_command(label="Open", command=lambda: [infowriter("Open")])
-    filemenu.add_command(label="Save", command=lambda: [infowriter("Save")])
-    filemenu.add_separator()
-    filemenu.add_command(label="Exit", command=mainwin.quit)
-    # edit menu
-    editmenu = tkinter.Menu(mainmenu, tearoff=0)
-    mainmenu.add_cascade(label="Edit", menu=editmenu)
-    editmenu.add_command(label="Cut")
-    editmenu.add_command(label="Copy")
-    editmenu.add_command(label="Paste")
-    # help menu
-    helpmenu = tkinter.Menu(mainmenu, tearoff=0)
-    mainmenu.add_cascade(label="Help", menu=helpmenu)
-    helpmenu.add_command(label="About")'''
-    # main window
-
+    uppmenu()
+    # main menu
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        for i in fil.readlines()[1:]:
+            l = i.split(b",")
+            orgpass(decryptor(l[4]), decryptor(l[0]), decryptor(l[1]), decryptor(l[2]), decryptor(l[3]))
     mainwin.mainloop()
