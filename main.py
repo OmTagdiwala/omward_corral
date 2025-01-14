@@ -55,6 +55,21 @@ def infowriter(desc, passname="", password="", pemail="", note=""):
             fil.write(encryptor(passname) + b"," + encryptor(password) + b"," + encryptor(pemail) + b"," + encryptor(note) + b"," + encryptor(desc) + b"\n")
     refreshdata()
 
+def infokiller(desc, passname="", password="", pemail="", note=""):
+    file_path = hasher(xerror) + ".txt"
+    with open(file_path, "rb") as fil:
+        c = fil.readlines()
+        for i in range(1, len(c)):
+            y = c[i].split(b",")
+            for q, val in enumerate(y):
+                y[q] = decryptor(val)
+            if y[4] == desc:
+                c.pop(i)
+                break
+    with open(file_path, "wb") as fil:
+        fil.writelines(c)
+    refreshdata()
+
 def passsuggest():
     x = True
     while x == True:
@@ -355,6 +370,8 @@ def passwin(desc, passname, password, pemail, note):
     save_button.pack(side="left", padx=4)
     cancel_button = tkinter.Button(savfram, text="Cancel", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=passwin.destroy)
     cancel_button.pack(side="right", padx=4)
+    delete_button = tkinter.Button(savfram, text="Delete", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white", command=lambda: [infokiller(desc=desc_entry.get(), passname=passname_entry.get(), password=password_entry.get(), pemail=pemail_entry.get(), note=note_entry.get("1.0", tkinter.END)), passwin.destroy()])
+    delete_button.pack(side="right", padx=4)
     passwin.iconbitmap("omward_corral.ico")
     passwin.mainloop()
 
@@ -362,28 +379,28 @@ def orgpass(desc, passname, password, pemail, note):
     '''global bigboyfram'''
     fram = tkinter.Frame(mainwin, bg="black", highlightcolor="blue", highlightbackground="purple", highlightthickness=1)
     fram.pack()
-    note = note.replace("\n", "-")
+    noteC = note.replace("\n", "-")
     args = {'desc': desc, 'passname': passname, 'password': password, 'pemail': pemail, 'note': note}
     for key, value in args.items():
         if len(value) > 15:
             args[key] = value[:15] + "..."
 
     # Use the modified arguments
-    desc = args['desc']
-    passname = args['passname']
-    password = args['password']
-    pemail = args['pemail']
-    note = args['note']
+    descC = args['desc']
+    passnameC = args['passname']
+    passwordC = args['password']
+    pemailC = args['pemail']
+    noteC = args['note']
 
-    descbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=desc, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    descbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=descC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
     descbt.pack(side="left", padx=1, pady=2)
-    passnbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passname, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    passnbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passnameC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
     passnbt.pack(side="left", padx=1, pady=2)
-    passwbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=password, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    passwbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passwordC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
     passwbt.pack(side="left", padx=1, pady=2)
-    pemailbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=pemail, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    pemailbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=pemailC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
     pemailbt.pack(side="left", padx=1, pady=2)
-    notebt = tkinter.Button(fram, width=15, height=1, relief="flat", text=note, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    notebt = tkinter.Button(fram, width=15, height=1, relief="flat", text=noteC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
     notebt.pack(side="left", padx=1, pady=2)
 
 def refreshdata():
