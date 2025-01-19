@@ -109,6 +109,7 @@ smtp_server = "smtp.gmail.com"
 smtp_port = 587
 smtp_username = "bunny.rnd@gmail.com"
 smtp_password = "aebx xjjx rnpm ynxl"
+counter = 0
 eye = (PhotoImage(file="eye.png")).subsample(15, 15)
 closeye = (PhotoImage(file="closeye.png")).subsample(15, 15)
 success = False
@@ -142,13 +143,13 @@ def confirmuser(name, passward, email):
 
 def checkcode(name, password, email):
     confirmlab = tkinter.Label(loginwin, text="Enter Your Confirmation Code", font=("Segoe UI", 12), fg="white", bg="black")
-    confirmlab.pack(side="top", anchor="w")
+    confirmlab.pack()
     confirmentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
-    confirmentry.pack(side="top", anchor="w")
-    print(confcode)
+    confirmentry.pack()
+    #print(confcode)
     loginwin.bind("<Return>", lambda event: createuser(name, password, email) if confcode == confirmentry.get() else messagebox.showerror("Error", "Confirmation code is incorrect"))
     confirmbtn = tkinter.Button(loginwin, text="Confirm", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: createuser(name, password, email) if confcode == confirmentry.get() else messagebox.showerror("Error", "Confirmation code is incorrect"))    
-    confirmbtn.pack(side="top", anchor="w")
+    confirmbtn.pack(pady=10)
 
 def createuser(name, passward, email):
     global xerror
@@ -157,8 +158,8 @@ def createuser(name, passward, email):
     with open(hasher(xerror) + ".txt", "wb") as fil:
         fil.write((hasher(name)).encode() + b"," + encryptor(passward) + b"," + encryptor(email) + b"\n")
     loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.get()))
-    loginwin.geometry("400x250")
-    print(name, passward, email)
+    loginwin.geometry("400x200")
+    #print(name, passward, email)
 
 def passvalidity(password, confpassword=",", name = "password"):
     if password != confpassword and confpassword != ",":
@@ -194,7 +195,12 @@ def passvalidity(password, confpassword=",", name = "password"):
         # a later feature'''
 
 def deleteuser():
-    os.remove(hasher(xerror) + ".txt")
+    if messagebox.askyesno("Warning", "Are you sure you want to delete your account?"):
+        os.remove(hasher(xerror) + ".txt")
+        mainwin.destroy()
+    else:
+        pass
+
     # add a message box to confirm deletion
     # send an email to user to confirm deletion
 
@@ -248,32 +254,41 @@ def newuserinfo():
     loginwin.geometry("400x600")
     title = tkinter.Label(loginwin, text="New User?", font=("Segoe UI Black", 17), justify="center", fg="white", bg="black")
     title.pack(side="top", anchor="center")
-    userlabel = tkinter.Label(loginwin, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
-    userlabel.pack(side="top", anchor="w")
-    userentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
-    userentry.pack(side="top", anchor="w")
+    # username
+    nusfram = tkinter.Frame(loginwin, bg="black")
+    nusfram.pack()
+    userlabel = tkinter.Label(nusfram, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
+    userlabel.pack()
+    userentry = tkinter.Entry(nusfram, font=("Segoe UI", 12), fg="black", bg="white")
+    userentry.pack()
     # password
-    passlabel = tkinter.Label(loginwin, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
-    passlabel.pack(side="top", anchor="w")
+    npasfram = tkinter.Frame(loginwin, bg="black")
+    npasfram.pack()
+    passlabel = tkinter.Label(npasfram, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
+    passlabel.pack()
     # password entry should be in dots
     # allow password to be shown while a button is pressed
-    passentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white", show="*")
-    passentry.pack(side="top", anchor="w")
+    passentry = tkinter.Entry(npasfram, font=("Segoe UI", 12), fg="black", bg="white", show="*")
+    passentry.pack()
     # confirm password
-    confirmpasslabel = tkinter.Label(loginwin, text="Confirm Password", font=("Segoe UI", 12), fg="white", bg="black")
-    confirmpasslabel.pack(side="top", anchor="w")
-    confirmpassentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white", show="*")
-    confirmpassentry.pack(side="top", anchor="w")
+    ncpasfram = tkinter.Frame(loginwin, bg="black")
+    ncpasfram.pack()
+    confirmpasslabel = tkinter.Label(ncpasfram, text="Confirm Password", font=("Segoe UI", 12), fg="white", bg="black")
+    confirmpasslabel.pack()
+    confirmpassentry = tkinter.Entry(ncpasfram, font=("Segoe UI", 12), fg="black", bg="white", show="*")
+    confirmpassentry.pack()
 
     # email
-    emaillabel = tkinter.Label(loginwin, text="Email", font=("Segoe UI", 12), fg="white", bg="black")
-    emaillabel.pack(side="top", anchor="w")
-    emailentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
-    emailentry.pack(side="top", anchor="w")
+    nemailfram = tkinter.Frame(loginwin, bg="black")
+    nemailfram.pack()
+    emaillabel = tkinter.Label(nemailfram, text="Email", font=("Segoe UI", 12), fg="white", bg="black")
+    emaillabel.pack()
+    emailentry = tkinter.Entry(nemailfram, font=("Segoe UI", 12), fg="black", bg="white")
+    emailentry.pack()
     # newuser button
     global newbutton
     newbutton = tkinter.Button(loginwin, text="Create User", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [newuser(userentry.get(), passentry.get(), confirmpassentry.get(), emailentry.get())])
-    newbutton.pack(side="top", anchor="w")
+    newbutton.pack(pady=10)
 
 # testing (no input yet so manually)
 '''if not infochecker("mward", "quacquack"):
@@ -286,34 +301,40 @@ else:
 # login window
 
 loginwin.title("Login Window")
-loginwin.geometry("400x250")
+loginwin.geometry("400x220")
 loginwin.resizable(True, False)
 loginwin.configure(bg="black")
 title = tkinter.Label(loginwin, text="Welcome to Omward Corral!", font=("Segoe UI Black", 17), justify="center", fg="white", bg="black")
 title.pack(side="top", anchor="center")
-userlabel = tkinter.Label(loginwin, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
-userlabel.pack(side="top", anchor="w")
-userentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white")
-userentry.pack(side="top", anchor="w")
+usnamefram = tkinter.Frame(loginwin, bg="black", pady=2)
+usnamefram.pack()
+userlabel = tkinter.Label(usnamefram, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
+userlabel.pack(side="top", anchor="center")
+userentry = tkinter.Entry(usnamefram, width=25, font=("Segoe UI", 12), fg="black", bg="white")
+userentry.pack(side="top", anchor="center")
 # password
-passlabel = tkinter.Label(loginwin, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
-passlabel.pack(side="top", anchor="w")
+pswfram = tkinter.Frame(loginwin, bg="black")
+pswfram.pack()
+passlabel = tkinter.Label(pswfram, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
+passlabel.pack(side="top")
 # password entry should be in dots
 # allow password to be shown while a button is pressed
-passentry = tkinter.Entry(loginwin, font=("Segoe UI", 12), fg="black", bg="white", show="*")
-passentry.pack(side="top", anchor="w")
+passentry = tkinter.Entry(pswfram, width=21, font=("Segoe UI", 12), fg="black", bg="white", show="*")
+passentry.pack(side="left")
 # show password button
-showbutton = tkinter.Button(loginwin, image=closeye, font=("Segoe UI", 12), fg="black", bg="white")
-showbutton.pack(side="top", anchor="w")
+showbutton = tkinter.Button(pswfram, image=closeye, font=("Segoe UI", 12), fg="black", bg="white")
+showbutton.pack(side="right", padx=5)
 showbutton.bind("<ButtonPress-1>", showpassword)
 showbutton.bind("<ButtonRelease-1>", hidepassword)
 # if enter is pressed it will try the infochecker function
 loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.get()))
 # login button
-loginbutton = tkinter.Button(loginwin, text="Login", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [infochecker(userentry.get(), passentry.get())])
-loginbutton.pack(side="top", anchor="w")
-newuserbut = tkinter.Button(loginwin, text="New User?", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
-newuserbut.pack(side="top", anchor="w")
+logfram = tkinter.Frame(loginwin, bg="black")
+logfram.pack()
+loginbutton = tkinter.Button(logfram, text="Login", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [infochecker(userentry.get(), passentry.get())])
+loginbutton.pack(side="left", padx=4, pady=10)
+newuserbut = tkinter.Button(logfram, text="New User?", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
+newuserbut.pack(side="right", padx=4, pady=10)
 # forgot password button
 # forgotbutton = tkinter.Button(loginframe, text="Forgot Password", font=("Segoe UI", 12), fg="black", bg="white", command=forgotpassword)
 # forgotbutton.pack(side="top", anchor="w")
@@ -332,7 +353,6 @@ def passwin(desc, passname, password, pemail, note):
     passwin.geometry("300x610")
     passwin.resizable(True, True)
     passwin.configure(bg="black")
-    # copiolet, add entries for the description, username, password, email, and notes 
     desc_label = tkinter.Label(passwin, text="Description: ", font=('Bahnschrift SemiBold SemiConden', 12), bg="black", fg="white")
     desc_label.pack()
     desc_entry = tkinter.Entry(passwin, font=('Century Gothic', 12))
@@ -375,8 +395,41 @@ def passwin(desc, passname, password, pemail, note):
     passwin.iconbitmap("omward_corral.ico")
     passwin.mainloop()
 
-def orgpass(desc, passname, password, pemail, note):
+def changepage(direction="next", highlight=""):
+    global counter
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        q = len(fil.readlines())-1
+    if direction == "next":
+        if ((counter+1)*10 >= (q)) or (counter+1)*10 == (q):
+            counter = counter
+        else:
+            counter += 1
+    elif direction == "prev":
+        if counter == 0:
+            counter = 0
+        else:
+            counter -= 1
+    else:
+        counter = counter
+    for widget in mainwin.winfo_children():
+        widget.destroy()
+    #print(counter)
+    uppmenu()
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        for i in fil.readlines()[1+counter*10:11+counter*10]:
+            l = i.split(b",")
+            for q, val in enumerate(l):
+                l[q] = decryptor(val)
+            '''print(l)
+            print(highlight)'''
+            #print(counter)
+            if highlight != "" and highlight == l:
+                orgpass(l[4], l[0], l[1], l[2], l[3], col="purple")
+            else:
+                orgpass(l[4], l[0], l[1], l[2], l[3])
+def orgpass(desc, passname, password, pemail, note, col="white"):
     '''global bigboyfram'''
+    global fram
     fram = tkinter.Frame(mainwin, bg="black", highlightcolor="blue", highlightbackground="purple", highlightthickness=1)
     fram.pack()
     noteC = note.replace("\n", "-")
@@ -392,15 +445,15 @@ def orgpass(desc, passname, password, pemail, note):
     pemailC = args['pemail']
     noteC = args['note']
 
-    descbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=descC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    descbt = tkinter.Button(fram,width=15, height=1, relief="flat", text=descC, font=("Segoe UI", 12), fg="black", bg=col, command=lambda: [passwin(desc, passname, password, pemail, note)])
     descbt.pack(side="left", padx=1, pady=2)
-    passnbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passnameC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    passnbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passnameC, font=("Segoe UI", 12), fg="black", bg=col, command=lambda: [passwin(desc, passname, password, pemail, note)])
     passnbt.pack(side="left", padx=1, pady=2)
-    passwbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passwordC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    passwbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=passwordC, font=("Segoe UI", 12), fg="black", bg=col, command=lambda: [passwin(desc, passname, password, pemail, note)])
     passwbt.pack(side="left", padx=1, pady=2)
-    pemailbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=pemailC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    pemailbt = tkinter.Button(fram, width=15, height=1, relief="flat", text=pemailC, font=("Segoe UI", 12), fg="black", bg=col, command=lambda: [passwin(desc, passname, password, pemail, note)])
     pemailbt.pack(side="left", padx=1, pady=2)
-    notebt = tkinter.Button(fram, width=15, height=1, relief="flat", text=noteC, font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [passwin(desc, passname, password, pemail, note)])
+    notebt = tkinter.Button(fram, width=15, height=1, relief="flat", text=noteC, font=("Segoe UI", 12), fg="black", bg=col, command=lambda: [passwin(desc, passname, password, pemail, note)])
     notebt.pack(side="left", padx=1, pady=2)
 
 def refreshdata():
@@ -408,21 +461,47 @@ def refreshdata():
         widget.destroy()
     uppmenu()
     with open(f"{hasher(xerror)}.txt", "rb") as fil:
-        for i in fil.readlines()[1:]:
+        for i in fil.readlines()[1+counter*10:11+counter*10]:
             l = i.split(b",")
             orgpass(decryptor(l[4]), decryptor(l[0]), decryptor(l[1]), decryptor(l[2]), decryptor(l[3]))
 
-def logout():
-    global success
-    success = False
-    mainwin.destroy()
-    loginwin()
+def searcher(search):
+    global reddy
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        for i in fil.readlines()[1:]:
+            reddy = i.split(b",")
+            for q, val in enumerate(reddy):
+                reddy[q] = decryptor(val)
+            if search in reddy:
+                showresults(reddy)
+                break
+        else:
+            messagebox.showerror("Error", "No results found")
+
+def showresults(value):
+    global reddy
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        for i, val in enumerate(fil.readlines()[1:]):
+            noop = val.split(b",")
+            for q, val in enumerate(noop):
+                noop[q] = decryptor(val)
+            if noop == value:
+                funk = False
+                break
+            else:
+                funk = True
+    global counter
+    counter = (i//10)
+    changepage("stay", value)
+                
 
 def uppmenu():
     mainmenu = tkinter.Menu(mainwin)
     mainwin.config(menu=mainmenu)
-    welcome = tkinter.Label(mainwin, text=f"Welcome {xerror}", font=("Segoe UI", 16), fg="cyan", bg="black")
-    welcome.pack()
+    searchfram = tkinter.Frame(mainwin, bg="black")
+    searchfram.pack()
+    welcome = tkinter.Label(searchfram, text=f"Welcome {xerror}", font=("Segoe UI", 18), fg="cyan", bg="black")
+    welcome.pack(side="top", anchor="center")
     # file menu
     filemenu = tkinter.Menu(mainmenu, tearoff=0)
     mainmenu.add_cascade(label="File", menu=filemenu)
@@ -433,12 +512,10 @@ def uppmenu():
     # edit menu
     editmenu = tkinter.Menu(mainmenu, tearoff=0)
     mainmenu.add_cascade(label="Settings", menu=editmenu)
-    editmenu.add_command(label="Log Out", command=logout)
 #    editmenu.add_command(label="Change Password")
-#    editmenu.add_command(label="Delete Account")
+    editmenu.add_command(label="Delete Account", command=deleteuser)
+    editmenu.add_command(label="Accessibility")
     # accessability menu
-    accessmenu = tkinter.Menu(mainmenu, tearoff=0)
-    mainmenu.add_cascade(label="Accessibility", menu=accessmenu)
 #    accessmenu.add_command(label="Change Theme")
 #    accessmenu.add_command(label="Change Font")
 #    accessmenu.add_command(label="Toggle Password Visibility")
@@ -448,7 +525,30 @@ def uppmenu():
     helpmenu.add_command(label="Help", command=lambda: messagebox.showinfo("Help", "Omward Corral\nVersion 1.0\nEmail bunny.rnd@gmail.com for help and inquires\nRefer to Readme on Github\nhttps://github.com/OmTagdiwala/omward_corral"))
     helpmenu.add_command(label="Creator Information", command=lambda: messagebox.showinfo("Meet The Creator", "Omward Corral\nDeveloped by OmTagdiwala\nbunny.rnd@gmail.com\nhttps://github.com/OmTagdiwala"))
     helpmenu.add_command(label="Report a Bug", command=lambda: messagebox.showinfo("Report a Bug", "Email bunny.rnd@gmail.com"))
-'''    global bigboyfram
+    labfram = tkinter.Frame(mainwin, bg="black")
+    labfram.pack()
+    desclab = tkinter.Label(labfram, width=15, text="Description", font=("Segoe UI", 12), fg="white", bg="black")
+    desclab.pack(side="left", padx=1)
+    passlab = tkinter.Label(labfram, width=15, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
+    passlab.pack(side="left", padx=1)
+    passwlab = tkinter.Label(labfram, width=15, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
+    passwlab.pack(side="left", padx=1)
+    pemaillab = tkinter.Label(labfram, width=15,  text="Email", font=("Segoe UI", 12), fg="white", bg="black")
+    pemaillab.pack(side="left", padx=1)
+    notelab = tkinter.Label(labfram, width=15, text="Notes", font=("Segoe UI", 12), fg="white", bg="black")
+    notelab.pack(side="left", padx=1)
+    scrolbutl = tkinter.Button(mainwin, text="<", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: changepage("prev"))
+    scrolbutl.pack(side="left", padx=1)
+    scrolbutr = tkinter.Button(mainwin, text=">", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: changepage("next"))
+    scrolbutr.pack(side="right", padx=1)
+
+    searchentry = tkinter.Entry(searchfram, font=("Segoe UI", 12), fg="black", bg="white")
+    searchentry.pack(side="left", anchor="e")
+    searchbutton = tkinter.Button(searchfram, height=1, text="Search", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: searcher(searchentry.get()))
+    searchbutton.pack(side="right", anchor="e", padx=5)
+    mainwin.bind("<Return>", lambda event: searcher(searchentry.get()))
+
+    '''global bigboyfram
     bigboyfram = tkinter.Frame(mainwin, bg="black")
     scrollbar = tkinter.Scrollbar(bigboyfram, orient="vertical")
     scrollbar.pack(side="right", fill="y")
@@ -457,14 +557,18 @@ def uppmenu():
 if success == True:
     mainwin = tkinter.Tk()
     mainwin.title("Omward Corral")
-    mainwin.geometry("800x600")
+    mainwin.geometry("800x550")
     mainwin.resizable(True, True)
     mainwin.configure(bg="black")
     mainwin.iconbitmap("omward_corral.ico")
-    uppmenu()
     # main menu
+    uppmenu()
     with open(f"{hasher(xerror)}.txt", "rb") as fil:
-        for i in fil.readlines()[1:]:
+        if len(fil.readlines()) == 1:
+            passwin("Welcome!", "Username here", "Generate ->", "Your email here", "Just some notes if you have any\nClick \"Save\" to save this\n\n1)Go to file\n2)Click \"New\"\n3)Make your own password!\n\nHave fun!\n\n-Om Tagdiwala :)")
+    with open(f"{hasher(xerror)}.txt", "rb") as fil:
+        for i in fil.readlines()[1+counter*10:11+counter*10]:
             l = i.split(b",")
             orgpass(decryptor(l[4]), decryptor(l[0]), decryptor(l[1]), decryptor(l[2]), decryptor(l[3]))
+
     mainwin.mainloop()
