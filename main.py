@@ -2,6 +2,7 @@
 import tkinter
 from tkinter import messagebox
 from tkinter import PhotoImage
+import tkinter.simpledialog
 import os
 import smtplib
 import hashlib
@@ -185,14 +186,57 @@ def passvalidity(password, confpassword=",", name = "password"):
     else:
         return True, "Password is valid"
 
-'''def forgotpassword():
-    pass
-    # a later feature'''
+def forgotpassword(usename):
+    if usename == "":
+        messagebox.showinfo("Forgot Password", "Enter your username or email and press Forgot Password\nAn email will be sent to your email with a new password")
+    else:
+        try:
+            try:
+                with open(hasher(usename) + ".txt", "rb") as fil:
+                    q = fil.readline()
+                    email = decryptor(q.split(b",")[2])
+                    email = email[:3] + "*****" + email[email.index("@"):]
+            except:
+                for i in os.listdir():
+                    with open(i, "rb") as fil:
+                        q = fil.readline()
+                        print(decryptor(q.split(b",")[2]))
+                        if decryptor(q.split(b",")[2]) == usename:
+                            email = decryptor(q.split(b",")[2])
+                            email = email[:3] + "*****" + email[email.index("@"):]
+                            break
+        except:
+            messagebox.showerror("Error", "User does not exist")
+            return
+        temppassword = passsuggest()
+        emailuser(decryptor(q.split(b",")[2]), "Omward Corral Password Reset", f"Your new password is {temppassword}")
+        messagebox.showinfo("Forgot Password", f"A new password has been sent to your email\n{email}")
+        changepassword(temppassword, name=usename)
+        messagebox.showinfo("Forgot Password", "Please login with the new password and change it immediately\nAccess Settings and select change password")
 
-'''def changepassword(name, password):
-    with open(name + ".txt", "wb") as fil:
-        fil.write(encryptor(password))ure
-        # a later feature'''
+def passchangerin():
+    password = tkinter.simpledialog.askstring("Password Change", "Enter your current password")
+    with open(hasher(xerror) + ".txt", "rb") as fil:
+        q = fil.readline()
+        ogpass = decryptor(q.split(b",")[1])
+    if password == ogpass:
+        while True:
+            newpassword = tkinter.simpledialog.askstring("Password Change", "Enter your new password")
+            if passvalidity(newpassword)[0] == False:
+                messagebox.showerror("Error", passvalidity(newpassword)[1])
+            else:
+                changepassword(newpassword, xerror)
+                break
+
+def changepassword(password, name):
+    with open(hasher(name) + ".txt", "rb") as fil:
+        z = fil.readlines()
+        p = z[0].split(b",")
+        p[1]= encryptor(password)
+        z[0] = p[0] + b"," + p[1] + b"," + p[2]
+    with open(hasher(name) + ".txt", "wb") as fil:
+        fil.writelines(z)
+    emailuser(decryptor(z[0].split(b",")[2]), "Omward Corral Password Change", "Your password has been changed\nIf this was not you, please contact us immediately")
 
 def deleteuser():
     if messagebox.askyesno("Warning", "Are you sure you want to delete your account?"):
@@ -333,6 +377,8 @@ logfram = tkinter.Frame(loginwin, bg="black")
 logfram.pack()
 loginbutton = tkinter.Button(logfram, text="Login", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [infochecker(userentry.get(), passentry.get())])
 loginbutton.pack(side="left", padx=4, pady=10)
+forgotbutton = tkinter.Button(logfram, text="Forgot Password?", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [forgotpassword(userentry.get())])
+forgotbutton.pack(side="left", padx=4, pady=10)
 newuserbut = tkinter.Button(logfram, text="New User?", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
 newuserbut.pack(side="right", padx=4, pady=10)
 # forgot password button
@@ -512,7 +558,7 @@ def uppmenu():
     # edit menu
     editmenu = tkinter.Menu(mainmenu, tearoff=0)
     mainmenu.add_cascade(label="Settings", menu=editmenu)
-#    editmenu.add_command(label="Change Password")
+    editmenu.add_command(label="Change Password", command=lambda: passchangerin())
     editmenu.add_command(label="Delete Account", command=deleteuser)
     editmenu.add_command(label="Accessibility")
     # accessability menu
