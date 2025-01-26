@@ -11,5 +11,3 @@ Omward Corral uses encryption and has some level of security with the passwords 
 Omward Corral was only made by Om Tagdiwala as a project to learn and apply concepts such as encryption, emailing, gui, and data writing
 
 A demo video can be found here: https://youtu.be/FUs4tQd3DzU
-
-For help and inquiries, email bunnny.rnd@gmail.com
