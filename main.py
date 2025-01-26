@@ -106,6 +106,7 @@ def decryptor(password):
 
 loginwin = tkinter.Tk()
 
+passwordreqs = "Requirements:\n1) At least 8 characters\n2) At least 1 uppercase letter\n3) At least 1 lowercase letter\n4) At least 1 number\n5) At least 1 special character\n6) No spaces\n7) No commas"
 smtp_server = "smtp.gmail.com"
 smtp_port = 587
 smtp_username = "bunny.rnd@gmail.com"
@@ -125,7 +126,7 @@ def newuser(name, passward, confpass, email):
     if os.path.exists(hasher(name) + ".txt"):
         messagebox.showerror("Error", "User already exists\nTry a different username")
     elif passvalidity(passward, confpass, name)[0] == False:
-        messagebox.showerror("Error", passvalidity(passward, confpass, name)[1])
+        messagebox.showerror("Error", passvalidity(passward, confpass, name)[1] + f"\n\n{passwordreqs}")
     elif verifyemail(email) == False:
         messagebox.showerror("Error", "Email is invalid")
     elif passvalidity(passward, confpass, name)[0] == True and verifyemail(email) == True and not os.path.exists(hasher(name) + ".txt"):
@@ -226,6 +227,7 @@ def passchangerin():
                 messagebox.showerror("Error", passvalidity(newpassword)[1])
             else:
                 changepassword(newpassword, xerror)
+                messagebox.showinfo("Success", "Password has been changed")
                 break
 
 def changepassword(password, name):
@@ -284,18 +286,18 @@ def hasher(name):
 # correct or incorrect password functions
 def wrong():
     messagebox.showerror("Error", "Incorrect Username or Password")
-def showpassword(event):
-    passentry.config(show="")
-    showbutton.config(image=eye)  
-def hidepassword(event):
-    passentry.config(show="*")
-    showbutton.config(image=closeye)
+def showpassword(event, entry, btn):
+    entry.config(show="")
+    btn.config(image=eye)  
+def hidepassword(event, entry, btn):
+    entry.config(show="*")
+    btn.config(image=closeye)
 
 # new user info maker
 def newuserinfo():
     newuserbut.config(state="disabled")
     loginwin.bind("<Return>", lambda event: [newuser(userentry.get(), passentry.get(), confirmpassentry.get(), emailentry.get())])
-    loginwin.geometry("400x600")
+    loginwin.geometry("400x650")
     title = tkinter.Label(loginwin, text="New User?", font=("Segoe UI Black", 17), justify="center", fg="white", bg="black")
     title.pack(side="top", anchor="center")
     # username
@@ -303,44 +305,43 @@ def newuserinfo():
     nusfram.pack()
     userlabel = tkinter.Label(nusfram, text="Username", font=("Segoe UI", 12), fg="white", bg="black")
     userlabel.pack()
-    userentry = tkinter.Entry(nusfram, font=("Segoe UI", 12), fg="black", bg="white")
+    userentry = tkinter.Entry(nusfram, font=("Segoe UI", 12), fg="black", bg="white", width=25)
     userentry.pack()
     # password
     npasfram = tkinter.Frame(loginwin, bg="black")
     npasfram.pack()
     passlabel = tkinter.Label(npasfram, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
     passlabel.pack()
-    # password entry should be in dots
-    # allow password to be shown while a button is pressed
-    passentry = tkinter.Entry(npasfram, font=("Segoe UI", 12), fg="black", bg="white", show="*")
-    passentry.pack()
+    passentry = tkinter.Entry(npasfram, font=("Segoe UI", 12), fg="black", bg="white", show="*", width=21)
+    passentry.pack(side="left", pady=5)
+    shpassword = tkinter.Button(npasfram, image=closeye, font=("Segoe UI", 12), fg="black", bg="white")
+    shpassword.pack(side="right", padx=5)
+    shpassword.bind("<ButtonPress-1>", lambda event: showpassword(event, passentry, shpassword))
+    shpassword.bind("<ButtonRelease-1>", lambda event: hidepassword(event, passentry, shpassword))
+    passreqq = tkinter.Button(loginwin, text="Password Requirements", font=("Segoe UI", 8), fg="white", bg="black", command=lambda: messagebox.showinfo("Password Requirements", passwordreqs))
+    passreqq.pack()
     # confirm password
     ncpasfram = tkinter.Frame(loginwin, bg="black")
     ncpasfram.pack()
     confirmpasslabel = tkinter.Label(ncpasfram, text="Confirm Password", font=("Segoe UI", 12), fg="white", bg="black")
     confirmpasslabel.pack()
-    confirmpassentry = tkinter.Entry(ncpasfram, font=("Segoe UI", 12), fg="black", bg="white", show="*")
-    confirmpassentry.pack()
-
+    confirmpassentry = tkinter.Entry(ncpasfram, font=("Segoe UI", 12), fg="black", bg="white", show="*", width=21)
+    confirmpassentry.pack(side="left", pady=5)
+    shcpassword = tkinter.Button(ncpasfram, image=closeye, font=("Segoe UI", 12), fg="black", bg="white")
+    shcpassword.pack(side="right", padx=5)
+    shcpassword.bind("<ButtonPress-1>", lambda event: showpassword(event, confirmpassentry, shcpassword))
+    shcpassword.bind("<ButtonRelease-1>", lambda event: hidepassword(event, confirmpassentry, shcpassword))
     # email
     nemailfram = tkinter.Frame(loginwin, bg="black")
     nemailfram.pack()
     emaillabel = tkinter.Label(nemailfram, text="Email", font=("Segoe UI", 12), fg="white", bg="black")
     emaillabel.pack()
-    emailentry = tkinter.Entry(nemailfram, font=("Segoe UI", 12), fg="black", bg="white")
+    emailentry = tkinter.Entry(nemailfram, font=("Segoe UI", 12), fg="black", bg="white", width=25)
     emailentry.pack()
     # newuser button
     global newbutton
     newbutton = tkinter.Button(loginwin, text="Create User", font=("Segoe UI", 12), fg="black", bg="white", command=lambda: [newuser(userentry.get(), passentry.get(), confirmpassentry.get(), emailentry.get())])
     newbutton.pack(pady=10)
-
-# testing (no input yet so manually)
-'''if not infochecker("mward", "quacquack"):
-    newuser("mward", "quacquack", "all4music4us@gmail.com")
-    print("new user detected")
-else:
-    print("User already exists")
-    getinfo("mward", 1)'''
 
 # login window
 
@@ -361,15 +362,13 @@ pswfram = tkinter.Frame(loginwin, bg="black")
 pswfram.pack()
 passlabel = tkinter.Label(pswfram, text="Password", font=("Segoe UI", 12), fg="white", bg="black")
 passlabel.pack(side="top")
-# password entry should be in dots
-# allow password to be shown while a button is pressed
 passentry = tkinter.Entry(pswfram, width=21, font=("Segoe UI", 12), fg="black", bg="white", show="*")
 passentry.pack(side="left")
 # show password button
 showbutton = tkinter.Button(pswfram, image=closeye, font=("Segoe UI", 12), fg="black", bg="white")
 showbutton.pack(side="right", padx=5)
-showbutton.bind("<ButtonPress-1>", showpassword)
-showbutton.bind("<ButtonRelease-1>", hidepassword)
+showbutton.bind("<ButtonPress-1>", lambda event: showpassword(event, passentry, showbutton))
+showbutton.bind("<ButtonRelease-1>", lambda event: hidepassword(event, passentry, showbutton))
 # if enter is pressed it will try the infochecker function
 loginwin.bind("<Return>", lambda event: infochecker(userentry.get(), passentry.get()))
 # login button
@@ -381,12 +380,6 @@ forgotbutton = tkinter.Button(logfram, text="Forgot Password?", font=("Segoe UI"
 forgotbutton.pack(side="left", padx=4, pady=10)
 newuserbut = tkinter.Button(logfram, text="New User?", font=("Segoe UI", 12), fg="black", bg="white", command=newuserinfo)
 newuserbut.pack(side="right", padx=4, pady=10)
-# forgot password button
-# forgotbutton = tkinter.Button(loginframe, text="Forgot Password", font=("Segoe UI", 12), fg="black", bg="white", command=forgotpassword)
-# forgotbutton.pack(side="top", anchor="w")
-# exit button
-# background image
-# bg = tkinter.PhotoImage(file="bg.png")
 loginwin.iconbitmap("omward_corral.ico")
 loginwin.mainloop()
 
@@ -539,8 +532,7 @@ def showresults(value):
     global counter
     counter = (i//10)
     changepage("stay", value)
-                
-
+    
 def uppmenu():
     mainmenu = tkinter.Menu(mainwin)
     mainwin.config(menu=mainmenu)
